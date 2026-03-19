@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Frost AI Bot</title>
+<style>
+body { background:#0b0f1a; color:white; text-align:center; font-family:Arial; }
+.card { background:#12182b; padding:20px; margin:10px; border-radius:10px; }
+button { padding:10px 20px; margin:5px; border:none; border-radius:6px; }
+.start { background:green; }
+.stop { background:red; }
+#celebrate { position:fixed; top:40%; left:50%; transform:translate(-50%,-50%); font-size:30px; display:none; }
+</style>
+</head>
+<body>
+<h1>🤖 Frost AI Vision</h1>
+<div class="card">
+<p>Status: <span id="status">Stopped</span></p>
+<p>Profit: $<span id="profit">0</span></p>
+<p>Prediction: <span id="prediction">-</span></p>
+<p>Trades: <span id="trades">0</span></p>
+<p>Wins: <span id="wins">0</span></p>
+<p>Loss Streak: <span id="loss">0</span></p>
+</div>
+<div class="card">
+<button class="start" onclick="startBot()">Start</button>
+<button class="stop" onclick="stopBot()">Stop</button>
+</div>
+<div id="celebrate">🎉 Congratulations! 🎉</div>
+<script>
+let lastShown = "";
+async function update() {
+let res = await fetch('/data');
+let d = await res.json();
+document.getElementById("profit").innerText = d.profit.toFixed(2);
+document.getElementById("prediction").innerText = d.lastPrediction;
+document.getElementById("trades").innerText = d.totalTrades;
+document.getElementById("wins").innerText = d.wins;
+document.getElementById("loss").innerText = d.lossCount;
+if(d.lastResult==="win" && lastShown!=="win"){
+let box=document.getElementById("celebrate");
+box.style.display="block";
+setTimeout(()=>box.style.display="none",2000);}
+lastShown=d.lastResult;}
+async function startBot(){await fetch('/start');document.getElementById("status").innerText="Running";}
+async function stopBot(){await fetch('/stop');document.getElementById("status").innerText="Stopped";}
+setInterval(update,2000);
+</script>
+</body>
+</html>
